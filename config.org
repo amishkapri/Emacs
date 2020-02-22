@@ -1,0 +1,360 @@
+
+
+* Terminal 
+** setting "eshell" as my default terminal
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "<f1>") 'eshell)
+
+#+END_SRC
+
+* Org
+** org-agenda
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-files (quote ("~/mylife.org")))
+#+END_SRC
+** basic config
+#+BEGIN_SRC emacs-lisp
+  (setq org-src-window-setup 'current-window)
+  (add-to-list 'org-structure-template-alist
+	       '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+#+END_SRC
+** Changing org bullets
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
+
+#+END_SRC
+* Minor Settings
+** expand region
+#+BEGIN_SRC emacs-lisp
+(use-package expand-region
+  :ensure t
+  :bind ("C-q" . er/expand-region))
+#+END_SRC
+** mark multiple
+#+BEGIN_SRC emacs-lisp
+(use-package mark-multiple
+  :ensure t
+  :bind ("C-c q" . 'mark-next-like-this))
+#+END_SRC
+** swiper
+#+BEGIN_SRC emacs-lisp
+(use-package swiper
+  :ensure t
+  :bind ("C-s" . 'swiper))
+#+END_SRC
+** show row and columns in modeline
+#+BEGIN_SRC emacs-lisp
+  (line-number-mode 1)
+  (column-number-mode 1)
+#+END_SRC
+** clock
+#+BEGIN_SRC emacs-lisp
+  (setq display-time-24hr-format t)
+  (display-time-mode 1)
+#+END_SRC
+** electric
+#+BEGIN_SRC emacs-lisp
+  (setq electric-pair-pairs '(
+			     (?\{ . ?\})
+			     (?\( . ?\))
+			     (?\[ . ?\])
+			     (?\" . ?\")
+			     ))
+  (electric-pair-mode t)
+
+
+#+END_SRC
+** scrolling down by one line when using C-n 
+#+BEGIN_SRC emacs-lisp
+(setq scroll-conservatively 100)
+
+#+END_SRC
+** making line highlighter
+#+BEGIN_SRC emacs-lisp
+(when window-system (global-hl-line-mode t))
+#+END_SRC
+
+** changing word to symbols
+#+BEGIN_SRC emacs-lisp
+(when window-system (global-prettify-symbols-mode t))
+#+END_SRC
+** getting rid of bars
+#+BEGIN_SRC emacs-lisp
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+#+END_SRC
+** alias for yes or no pop-up
+  #+BEGIN_SRC emacs-lisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+  #+END_SRC
+** closing start-up messages
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-startup-message t)
+#+END_SRC
+** setting keys
+#+BEGIN_SRC emacs-lisp
+(setq w32-apps-modifier 'hyper)
+(setq w32-lwindow-modifier 'super)
+(setq w32-rwindow-modifier 'hyper)
+#+END_SRC
+** disable bell
+#+BEGIN_SRC emacs-lisp
+  (setq ring-bell-function 'ignore)
+#+END_SRC
+* Which key
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :init
+  (which-key-mode))
+#+END_SRC
+* Beacon 
+** blinking lines while changing between buffers
+#+BEGIN_SRC emacs-lisp
+(use-package beacon
+  :ensure t
+  :init
+  (beacon-mode 1))
+#+END_SRC
+* Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+      (dashboard-setup-startup-hook)
+      (setq dashboard-items '((recents  . 5)
+			      (projects . 5)))
+      (setq dashboard-banner-logo-title "Welcome to Amish's Emacs"))
+#+END_SRC
+* IDO
+** enable ido mode
+#+BEGIN_SRC emacs-lisp
+  (setq ido-enable-flex-matching nil)
+  (setq ido-create-new-buffer 'always)
+  (setq ido-everywhere t)
+  (ido-mode 1)
+#+END_SRC
+** ido-vertical 
+#+BEGIN_SRC emacs-lisp
+  (use-package ido-vertical-mode
+    :ensure t
+    :init
+    (ido-vertical-mode 1))
+  (setq iso-vertical-define-keys 'C-n-and-C-p-only)
+#+END_SRC
+
+#+RESULTS:
+: C-n-and-C-p-only
+
+** smex
+#+BEGIN_SRC emacs-lisp 
+;;  (use-package smex
+;;    :ensure t
+;;    :init (smex-initialize)
+;;    :bind
+;;    ("M-x" . smex))
+#+END_SRC
+** switch buffer
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+#+END_SRC
+* Buffers
+** kill all buffer
+#+BEGIN_SRC emacs-lisp
+  (defun kill-all-buffers()
+    (interactive)
+    (mapc 'kill-buffer (buffer-list)))
+  (global-set-key (kbd "C-M-s-k") 'kill-all-buffers)
+#+END_SRC
+** enable ibuffer
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x b") 'ibuffer)
+#+END_SRC
+** scratch buffer 
+#+BEGIN_SRC emacs-lisp
+  (defun switch-buffer-scratch ()
+    "Switch to the scratch buffer. If the buffer doesn't exist,
+  create it and write the initial message into it."
+    (interactive)
+    (let* ((scratch-buffer-name "*scratch*")
+	   (scratch-buffer (get-buffer scratch-buffer-name)))
+      (unless scratch-buffer
+	(setq scratch-buffer (get-buffer-create scratch-buffer-name))
+	(with-current-buffer scratch-buffer
+	  (lisp-interaction-mode)
+	  (insert initial-scratch-message)))
+      (switch-to-buffer scratch-buffer)))
+
+  (global-set-key (kbd "C-1") 'switch-buffer-scratch)
+#+END_SRC
+* avy
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind
+    ("M-s" . avy-goto-char))
+#+END_SRC
+* config edit/reload
+** edit
+#+BEGIN_SRC emacs-lisp
+  (defun config-visit ()
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+  (global-set-key (kbd "C-c e") 'config-visit)
+#+END_SRC
+** reload
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c r") 'config-reload)
+#+END_SRC
+* rainbow 
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+    :ensure t
+    :init(rainbow-mode 1))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure t
+    :init
+      (rainbow-delimiters-mode 1))
+#+END_SRC
+* switch windows
+#+BEGIN_SRC emacs-lisp
+  (use-package switch-window
+    :ensure t
+    :config
+      (setq switch-window-input-style 'minibuffer)
+      (setq switch-window-increase 4)
+      (setq switch-window-threshold 2)
+      (setq switch-window-shortcut-style 'qwerty)
+      (setq switch-window-qwerty-shortcuts
+	  '("a" "s" "d" "f" "j" "k" "l" "i" "o"))
+    :bind
+      ([remap other-window] . switch-window))
+#+END_SRC
+* Window splitting function
+#+BEGIN_SRC emacs-lisp
+
+
+#+END_SRC
+* convient function
+** kill whole word
+#+BEGIN_SRC emacs-lisp
+  (defun kill-whole-word ()
+    (interactive)
+    (backward-word)
+    (kill-word 1))
+  (global-set-key (kbd "C-c w w") 'kill-whole-word)
+
+ 
+#+END_SRC
+** hungry-delete
+#+BEGIN_SRC emacs-lisp
+  (use-package hungry-delete
+    :ensure t
+    :config(global-hungry-delete-mode))
+
+#+END_SRC
+** copy-whole-line
+#+BEGIN_SRC emacs-lisp
+  (defun copy-whole-line()
+    (interactive)
+    (save-excursion
+      (kill-new
+       (buffer-substring
+	(point-at-bol)
+	(point-at-eol)))))
+  (global-set-key (kbd "C-c w l") 'copy-whole-line)
+#+END_SRC
+* auto completion
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :init
+    (add-hook 'after-init-hook 'global-company-mode))
+#+END_SRC
+* modeline
+** spaceline
+#+BEGIN_SRC emacs-lisp
+  (use-package spaceline
+    :ensure t
+    :config
+    (require 'spaceline-config)
+      (setq spaceline-buffer-encoding-abbrev-p nil)
+      (setq spaceline-line-column-p nil)
+      (setq spaceline-line-p nil)
+      (setq powerline-default-separator (quote arrow))
+      (spaceline-spacemacs-theme))
+#+END_SRC
+** diminish
+#+BEGIN_SRC emacs-lisp
+  (use-package diminish
+    :ensure t
+    :init
+    (diminish 'hungry-delete-mode)
+    (diminish 'beacon-mode)
+    (diminish 'which-key-mode)
+    (diminish 'subword-mode)
+    (diminish 'rainbow-mode))
+#+END_SRC
+
+ * dmenu
+#+BEGIN_SRC emacs-lisp
+  (use-package dmenu
+    :ensure t 
+    :bind
+      ("S-SPC" . 'dmenu))
+#+END_SRC
+* symon
+#+BEGIN_SRC emacs-lisp
+  (use-package symon
+    :ensure t
+    :bind
+    ("s-j" . symon-mode))
+#+END_SRC
+
+* exwm
+#+BEGIN_SRC emacs-lisp
+  (use-package exwm
+    :ensure t
+    :config
+      ;; necessary to configure exwm manually
+    (require 'exwm-config)
+    (exwm-config-ido))
+#+END_SRC
+
+* kill ring
+#+BEGIN_SRC emacs-lisp
+  (use-package popup-kill-ring
+    :ensure t
+    :bind ("M-y" . popup-kill-ring))
+#+END_SRC
+* some key bindings
+** Macros 
+#+BEGIN_SRC emacs-lisp
+(fset 'bullet-list
+   [?  ?- ?  ?\M-f ?  right backspace backspace right backspace return])
+#+END_SRC
+* Snippets
+#+BEGIN_SRC emacs-lisp
+(use-package yasnippet
+  :ensure t
+  :config
+    (use-package yasnippet-snippets
+      :ensure t)
+    (yas-reload-all))
+(add-hook 'lua-mode-hook 'yas-minor-mode)
+#+END_SRC
+ 
+
+
+
+
+
